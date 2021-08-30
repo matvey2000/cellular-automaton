@@ -148,7 +148,7 @@ int main()
             {
                 if (evnt.mouseButton.button == 0)
                 {
-                    dr = true;
+                    dr = false;
                     //левая кнопка мыши
                 }
             }
