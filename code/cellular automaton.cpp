@@ -10,13 +10,13 @@ int h = 1000;
 int x = 100;
 int y = 100;
 //сетка
-int tk = 100;//задержка 
+int tk = 10;//задержка 
 
 float VCam = 1.;//скорость движения камеры
 
 sf::RenderWindow window(sf::VideoMode(w, h), "cellular automaton", sf::Style::None);
 
-void draw(float** grid)
+void draw(float** gridR, float** gridG, float** gridB)
 {
     window.clear();
     sf::RectangleShape cell;
@@ -27,8 +27,7 @@ void draw(float** grid)
     {
         for (int j = 0; j < y; j++)
         {
-            r = 255 * grid[i][j];
-            cell.setFillColor(sf::Color::Color(r, r, r));
+            cell.setFillColor(sf::Color::Color(255 * gridR[i][j], 255 * gridG[i][j], 255 * gridB[i][j]));
             cell.setPosition(sf::Vector2f(i * w / x, j * h / y));
 
             window.draw(cell);
@@ -83,13 +82,31 @@ int main()
 
     int kadr = 0;
 
-    float** grid = new float*[x];
+    float** gridR = new float* [x];
     for (int i = 0; i < x; i++)
     {
-        grid[i] = new float[y];
+        gridR[i] = new float[y];
         for (int j = 0; j < x; j++)
         {
-            grid[i][j] = rand() / float(RAND_MAX);
+            gridR[i][j] = rand() / float(RAND_MAX);
+        }
+    }
+    float** gridG = new float* [x];
+    for (int i = 0; i < x; i++)
+    {
+        gridG[i] = new float[y];
+        for (int j = 0; j < x; j++)
+        {
+            gridG[i][j] = rand() / float(RAND_MAX);
+        }
+    }
+    float** gridB = new float* [x];
+    for (int i = 0; i < x; i++)
+    {
+        gridB[i] = new float[y];
+        for (int j = 0; j < x; j++)
+        {
+            gridB[i][j] = rand() / float(RAND_MAX);
         }
     }
     sf::View view;
@@ -175,10 +192,12 @@ int main()
         vx = vx / pow(2, dt);
         vy = vy / pow(2, dt);
 
-        grid = itt(grid);
+        gridR = itt(gridR);
+        gridG = itt(gridG);
+        gridB = itt(gridB);
 
         window.setView(view);
-        draw(grid);
+        draw(gridR, gridG, gridB);
     }
     
     return 0;
