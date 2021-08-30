@@ -13,6 +13,13 @@ int y = 100;
 int tk = 100;//задержка 
 
 float VCam = 1.;//скорость движения камеры
+float k = 0.9;//коэффициент стремления
+
+int rd = 10;//радиус кисити
+int mx;
+int my;
+
+bool dr = false;
 
 sf::RenderWindow window(sf::VideoMode(w, h), "cellular automaton", sf::Style::None);
 
@@ -60,11 +67,11 @@ float** itt(float** grid)
             sr_zn = 2*abs(sr(grid, x0, y0) - grid[x0][y0]);
             if (copy[x0][y0] > 0.5)
             {
-                copy[x0][y0] -= sr_zn;
+                copy[x0][y0] -= sr_zn * k;
             }
             else
             {
-                copy[x0][y0] += sr_zn;
+                copy[x0][y0] += sr_zn * k;
             }
             if (copy[x0][y0] < 0)
             {
@@ -108,19 +115,8 @@ int main()
     }
     sf::View view;
 
-    int w = 0;
-    int d = 0;
-    float vx = 0;
-    float vy = 0;
-
-    double dt;
-    double t = clock();
     while (window.isOpen())
     {
-        dt = clock() - t;
-        t = clock();
-        view.move(vx * dt, vy * dt);
-
         sf::Event evnt;
 
         while (window.pollEvent(evnt))
@@ -139,59 +135,42 @@ int main()
                     photo.copyToImage().saveToFile("photos/photo_"+std::to_string(kadr)+".png");
                     kadr++;
                 }
-                else if (evnt.key.code == sf::Keyboard::W)
+            }
+            else if (evnt.type == sf::Event::MouseButtonPressed)
+            {
+                if (evnt.mouseButton.button == 0)
                 {
-                    w = 1;
-                }
-                else if (evnt.key.code == sf::Keyboard::S)
-                {
-                    w = -1;
-                }
-                else if (evnt.key.code == sf::Keyboard::D)
-                {
-                    d = 1;
-                }
-                else if (evnt.key.code == sf::Keyboard::A)
-                {
-                    d = -1;
+                    dr = true;
+                    //левая кнопка мыши
                 }
             }
-            else if (evnt.type == sf::Event::KeyReleased)
+            else if (evnt.type == sf::Event::MouseButtonReleased)
             {
-                if (evnt.key.code == sf::Keyboard::W)
+                if (evnt.mouseButton.button == 0)
                 {
-                    w = 0;
-                }
-                else if (evnt.key.code == sf::Keyboard::S)
-                {
-                    w = 0;
-                }
-                else if (evnt.key.code == sf::Keyboard::D)
-                {
-                    d = 0;
-                }
-                else if (evnt.key.code == sf::Keyboard::A)
-                {
-                    d = 0;
-                }
-            }
-            else if (evnt.type == sf::Event::MouseWheelMoved)
-            {
-                if (evnt.mouseWheel.delta != 0)
-                {
-                    view.zoom(pow(1.1, -evnt.mouseWheel.delta));
+                    dr = true;
+                    //левая кнопка мыши
                 }
             }
         }
-        vx += d * dt;
-        vy += -w * dt;
+        if (dr)
+        {
+            mx = evnt.mouseButton.x / float(w / float(x));
+            my = evnt.mouseButton.y / float(h / float(y));
 
-        vx = vx / pow(2, dt);
-        vy = vy / pow(2, dt);
-
+            for (int i = 0; i < x; i++)
+            {
+                for (int j = 0; j < y; j++)
+                {
+                    if (sqrt(pow(i - mx, 2) + pow(j - my, 2)) < rd)
+                    {
+                        grid[i][j] = 1;
+                    }
+                }
+            }
+        }
         grid = itt(grid);
 
-        window.setView(view);
         draw(grid);
     }
     
