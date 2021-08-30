@@ -16,7 +16,7 @@ float VCam = 1.;//скорость движения камеры
 
 sf::RenderWindow window(sf::VideoMode(w, h), "cellular automaton", sf::Style::None);
 
-void draw(float** gridR, float** gridG, float** gridB)
+void draw(float** grid)
 {
     window.clear();
     sf::RectangleShape cell;
@@ -27,7 +27,7 @@ void draw(float** gridR, float** gridG, float** gridB)
     {
         for (int j = 0; j < y; j++)
         {
-            cell.setFillColor(sf::Color::Color(255 * gridR[i][j], 255 * gridG[i][j], 255 * gridB[i][j]));
+            cell.setFillColor(sf::Color::Color(255 * grid[i][j], 255 * grid[i][j], 255 * grid[i][j]));
             cell.setPosition(sf::Vector2f(i * w / x, j * h / y));
 
             window.draw(cell);
@@ -57,8 +57,16 @@ float** itt(float** grid)
     {
         for (int y0 = 0; y0 < y; y0++)
         {
-            sr_zn = sr(grid, x0, y0);
-            copy[x0][y0] = 4 * sr_zn * (1 - sr_zn);
+            sr_zn = 0.5-abs(sr(grid, x0, y0) - grid[x0][y0]);
+            copy[x0][y0] += grid[x0][y0] - sr_zn;
+            if (copy[x0][y0] < 0)
+            {
+                copy[x0][y0] = 0;
+            }
+            if (copy[x0][y0] > 1)
+            {
+                copy[x0][y0] = 1;
+            }
         }
     }
     return copy;
@@ -82,31 +90,13 @@ int main()
 
     int kadr = 0;
 
-    float** gridR = new float* [x];
+    float** grid = new float* [x];
     for (int i = 0; i < x; i++)
     {
-        gridR[i] = new float[y];
+        grid[i] = new float[y];
         for (int j = 0; j < x; j++)
         {
-            gridR[i][j] = rand() / float(RAND_MAX);
-        }
-    }
-    float** gridG = new float* [x];
-    for (int i = 0; i < x; i++)
-    {
-        gridG[i] = new float[y];
-        for (int j = 0; j < x; j++)
-        {
-            gridG[i][j] = rand() / float(RAND_MAX);
-        }
-    }
-    float** gridB = new float* [x];
-    for (int i = 0; i < x; i++)
-    {
-        gridB[i] = new float[y];
-        for (int j = 0; j < x; j++)
-        {
-            gridB[i][j] = rand() / float(RAND_MAX);
+            grid[i][j] = rand() / float(RAND_MAX);
         }
     }
     sf::View view;
@@ -192,12 +182,10 @@ int main()
         vx = vx / pow(2, dt);
         vy = vy / pow(2, dt);
 
-        gridR = itt(gridR);
-        gridG = itt(gridG);
-        gridB = itt(gridB);
+        grid = itt(grid);
 
         window.setView(view);
-        draw(gridR, gridG, gridB);
+        draw(grid);
     }
     
     return 0;
