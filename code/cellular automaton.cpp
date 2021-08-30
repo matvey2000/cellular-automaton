@@ -10,7 +10,7 @@ int h = 1000;
 int x = 100;
 int y = 100;
 //сетка
-int tk = 10;//задержка 
+int tk = 100;//задержка 
 
 float VCam = 1.;//скорость движения камеры
 
@@ -57,8 +57,15 @@ float** itt(float** grid)
     {
         for (int y0 = 0; y0 < y; y0++)
         {
-            sr_zn = 0.5-abs(sr(grid, x0, y0) - grid[x0][y0]);
-            copy[x0][y0] += grid[x0][y0] - sr_zn;
+            sr_zn = 2*abs(sr(grid, x0, y0) - grid[x0][y0]);
+            if (copy[x0][y0] > 0.5)
+            {
+                copy[x0][y0] -= sr_zn;
+            }
+            else
+            {
+                copy[x0][y0] += sr_zn;
+            }
             if (copy[x0][y0] < 0)
             {
                 copy[x0][y0] = 0;
